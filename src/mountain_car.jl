@@ -5,7 +5,7 @@ Code inspired by OpenAI gym implementation of MountainCar environment. https://g
 using MDPs
 using Random
 using UnPack
-import MDPs: action_space, state_space, action_meaning, action_meanings, horizon, discount_factor, state, action, reward, reset!, step!, in_absorbing_state
+import MDPs: action_space, state_space, action_meaning, action_meanings, state, action, reward, reset!, step!, in_absorbing_state
 
 export MountainCarEnv
 
@@ -65,7 +65,6 @@ mutable struct MountainCarEnv{T <: AbstractFloat} <: AbstractMDP{Vector{T}, Int}
     const 𝑣_goal::Float64
     const 𝐹::Float64
 
-    const horizon::Int
     const 𝕊::VectorSpace{T}
     const 𝔸::IntegerSpace
 
@@ -73,11 +72,11 @@ mutable struct MountainCarEnv{T <: AbstractFloat} <: AbstractMDP{Vector{T}, Int}
     action::Int
     reward::Float64
 
-    function MountainCarEnv{T}(; gravity::Real=0.0025, position_range::Tuple{Real, Real}=(-1.2, 0.6), max_speed::Real=0.07, goal_position::Real=0.5, goal_velocity::Real=0, force_magnitude=0.001, horizon::Integer=200) where {T<:AbstractFloat}
+    function MountainCarEnv{T}(; gravity::Real=0.0025, position_range::Tuple{Real, Real}=(-1.2, 0.6), max_speed::Real=0.07, goal_position::Real=0.5, goal_velocity::Real=0, force_magnitude=0.001) where {T<:AbstractFloat}
         state_lower_bounds = T[position_range[1], -max_speed]
         state_upper_bounds = T[position_range[2], max_speed] 
         state_space = VectorSpace{T}(state_lower_bounds, state_upper_bounds)
-        new{T}(gravity, position_range, max_speed, goal_position, goal_velocity, force_magnitude, horizon, state_space, IntegerSpace(3), zeros(T, 2), 1, 0.0)
+        new{T}(gravity, position_range, max_speed, goal_position, goal_velocity, force_magnitude, state_space, IntegerSpace(3), zeros(T, 2), 1, 0.0)
     end
 end
 
@@ -85,8 +84,6 @@ end
 @inline action_space(mc::MountainCarEnv) = mc.𝔸
 const MOUNTAIN_CAR_ACTION_MEANINGS = ["left", "zero", "right"]
 @inline action_meaning(::MountainCarEnv, a::Int) = MOUNTAIN_CAR_ACTION_MEANINGS[a]
-@inline horizon(mc::MountainCarEnv) = mc.horizon
-@inline discount_factor(::MountainCarEnv) = 0.99
 
 
 function reset!(mc::MountainCarEnv; rng::AbstractRNG=Random.GLOBAL_RNG)::Nothing

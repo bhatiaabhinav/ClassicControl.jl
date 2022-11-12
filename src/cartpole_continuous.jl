@@ -5,7 +5,7 @@ Code inspired by OpenAI gym implementation of CartPole environment. https://gith
 using MDPs
 using Random
 using UnPack
-import MDPs: action_space, state_space, action_meaning, action_meanings, horizon, discount_factor, state, action, reward, reset!, step!, in_absorbing_state
+import MDPs: action_space, state_space, action_meaning, action_meanings, state, action, reward, reset!, step!, in_absorbing_state
 
 export CartPoleContinuousEnv
 
@@ -60,7 +60,6 @@ mutable struct CartPoleContinuousEnv{T <: AbstractFloat} <: AbstractMDP{Vector{T
     const θ_threshold::Float64
     const 𝑥_threshold::Float64
 
-    const horizon::Int
     const 𝕊::VectorSpace{T}
     const 𝔸::VectorSpace{T}
 
@@ -69,10 +68,10 @@ mutable struct CartPoleContinuousEnv{T <: AbstractFloat} <: AbstractMDP{Vector{T
     reward::Float64
 
 
-    function CartPoleContinuousEnv{T}(; gravity::Real=9.8, mass_cart::Real=1.0, mass_pole::Real=0.1, length_pole::Real=0.5, force_magnitude::Real=10.0, dt::Real=0.02, theta_threshold::Real=π/15.0, x_threshold::Real=2.4, horizon::Integer=200) where T <: AbstractFloat
+    function CartPoleContinuousEnv{T}(; gravity::Real=9.8, mass_cart::Real=1.0, mass_pole::Real=0.1, length_pole::Real=0.5, force_magnitude::Real=10.0, dt::Real=0.02, theta_threshold::Real=π/15.0, x_threshold::Real=2.4) where T <: AbstractFloat
         state_upper_bounds = T[2 * x_threshold, Inf, 2 * theta_threshold, Inf]
         state_space = VectorSpace{T}(-state_upper_bounds, state_upper_bounds)
-        new{T}(gravity, mass_cart, mass_pole, length_pole, force_magnitude, dt, theta_threshold, x_threshold, horizon, state_space, VectorSpace{T}(-1, 1, (1, )), zeros(T, 4), T[0], 0.0)
+        new{T}(gravity, mass_cart, mass_pole, length_pole, force_magnitude, dt, theta_threshold, x_threshold, state_space, VectorSpace{T}(-1, 1, (1, )), zeros(T, 4), T[0], 0.0)
     end
 
 end
@@ -80,9 +79,6 @@ end
 @inline state_space(cp::CartPoleContinuousEnv) = cp.𝕊
 @inline action_space(cp::CartPoleContinuousEnv) = cp.𝔸
 @inline action_meaning(::CartPoleContinuousEnv{T}, a::Vector{T}) where T = string(a[1])
-@inline horizon(cp::CartPoleContinuousEnv) = cp.horizon
-@inline discount_factor(cp::CartPoleContinuousEnv) = 0.99
-
 
 function reset!(cp::CartPoleContinuousEnv{T}; rng::AbstractRNG=Random.GLOBAL_RNG)::Nothing where T
     cp.state .= rand(rng, 4) * 0.1 .- 0.05

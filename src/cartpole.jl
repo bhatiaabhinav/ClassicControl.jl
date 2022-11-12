@@ -5,7 +5,7 @@ Code inspired by OpenAI gym implementation of CartPole environment. https://gith
 using MDPs
 using Random
 using UnPack
-import MDPs: action_space, state_space, action_meaning, action_meanings, horizon, discount_factor, state, action, reward, reset!, step!, in_absorbing_state
+import MDPs: action_space, state_space, action_meaning, action_meanings, state, action, reward, reset!, step!, in_absorbing_state
 
 export CartPoleEnv
 
@@ -60,7 +60,6 @@ mutable struct CartPoleEnv{T <: AbstractFloat} <: AbstractMDP{Vector{T}, Int}
     const θ_threshold::Float64
     const 𝑥_threshold::Float64
 
-    const horizon::Int
     const 𝕊::VectorSpace{T}
     const 𝔸::IntegerSpace
 
@@ -69,10 +68,10 @@ mutable struct CartPoleEnv{T <: AbstractFloat} <: AbstractMDP{Vector{T}, Int}
     reward::Float64
 
 
-    function CartPoleEnv{T}(; gravity::Real=9.8, mass_cart::Real=1.0, mass_pole::Real=0.1, length_pole::Real=0.5, force_magnitude::Real=10.0, dt::Real=0.02, theta_threshold::Real=π/15.0, x_threshold::Real=2.4, horizon::Integer=200) where T <: AbstractFloat
+    function CartPoleEnv{T}(; gravity::Real=9.8, mass_cart::Real=1.0, mass_pole::Real=0.1, length_pole::Real=0.5, force_magnitude::Real=10.0, dt::Real=0.02, theta_threshold::Real=π/15.0, x_threshold::Real=2.4) where T <: AbstractFloat
         state_upper_bounds = T[2 * x_threshold, Inf, 2 * theta_threshold, Inf]
         state_space = VectorSpace{T}(-state_upper_bounds, state_upper_bounds)
-        new{T}(gravity, mass_cart, mass_pole, length_pole, force_magnitude, dt, theta_threshold, x_threshold, horizon, state_space, IntegerSpace(2), zeros(T, 4), 1, 0.0)
+        new{T}(gravity, mass_cart, mass_pole, length_pole, force_magnitude, dt, theta_threshold, x_threshold, state_space, IntegerSpace(2), zeros(T, 4), 1, 0.0)
     end
 
 end
@@ -81,9 +80,6 @@ end
 @inline action_space(cp::CartPoleEnv) = cp.𝔸
 const CARTPOLE_ACTION_MEANINGS = ["left", "right"]
 @inline action_meaning(::CartPoleEnv, a::Int) = CARTPOLE_ACTION_MEANINGS[a]
-@inline horizon(cp::CartPoleEnv) = cp.horizon
-@inline discount_factor(cp::CartPoleEnv) = 0.99
-
 
 function reset!(cp::CartPoleEnv; rng::AbstractRNG=Random.GLOBAL_RNG)::Nothing
     cp.state .= rand(rng, 4) * 0.1 .- 0.05

@@ -1,7 +1,7 @@
 name = "ClassicControl"
 uuid = "3f3f21ef-6845-4c74-b940-e3f809462932"
 authors = ["Abhinav Bhatia <abhinav.bhatia.me@gmail.com>"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 MDPs = "11f886ef-95cd-43ae-b218-d50c093ca059"
