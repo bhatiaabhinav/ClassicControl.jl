@@ -89,7 +89,7 @@ function reset!(cp::CartPoleContinuousEnv{T}; rng::AbstractRNG=Random.GLOBAL_RNG
 end
 
 function step!(cp::CartPoleContinuousEnv{T}, a::Vector{T}; rng::AbstractRNG=Random.GLOBAL_RNG)::Nothing where T
-    @assert a ∈ action_space(cp)
+    @assert a ∈ action_space(cp) "$a ∉ $(action_space(cp))"
     cp.action .= a
     if in_absorbing_state(cp)
         @warn "The environment is in an absorbing state. This `step!` will not do anything. Please call `reset!`."
